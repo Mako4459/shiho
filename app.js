@@ -152,7 +152,8 @@ function App(){
   if(d) return <Detail item={d} type={detail.type} onBack={()=>setDetail(null)} updateProblem={updateProblem} updateTemplate={updateTemplate} setEditing={setEditing} />;
 
   return <div className="app">
-    <div className="header"><div className="title"><small>JUDICIAL SCRIVENER</small><b>苦手分野 管理ノート</b></div><div className="row"><button className="hbtn" onClick={()=>setTab("today")}>📌</button><button className="hbtn" onClick={()=>setEditing({type:"newProblem"})}>＋</button></div></div>
+    <div className="header"><div className="title"><small>JUDICIAL SCRIVENER</small><b>苦手分野 管理ノート</b></div><div className="row"><button className="hbtn" onClick={()=>downloadBackup(data)}
+⬇<button className="hbtn" onClick={()=>setTab("today")}>📌</button><button className="hbtn" onClick={()=>setEditing({type:"newProblem"})}>＋</button></div></div>
     <div className="tabs">{["problems","templates","compare","today"].map(t=><button key={t} className={"tab "+(tab===t?"active":"")} onClick={()=>setTab(t)}>{{problems:"一覧",templates:"ひな形",compare:"横断比較",today:"今日"}[t]}</button>)}</div>
     {(tab==="problems"||tab==="templates")&&<div className="tabs">{[{value:"all",label:"全て"},...LEVELS].map(l=><button key={l.value} className={"tab "+(String(levelFilter)===String(l.value)?"active":"")} onClick={()=>setLevelFilter(l.value)}>{levelCountLabel(l.label,l.value,activeCountSource)}</button>)}</div>}
     {(tab==="problems"||tab==="templates")&&<div style={{padding:"8px 12px",background:"#0a1628"}}><div className="row"><input className="input" value={searchInput} onChange={e=>setSearchInput(e.target.value)} placeholder="検索語を入力" /><button className="btn gold" onClick={()=>setSearch(searchInput)}>検索</button><button className="btn" onClick={()=>{setSearchInput("");setSearch("");}}>クリア</button></div></div>}
