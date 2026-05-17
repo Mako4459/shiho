@@ -4,17 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f1923" />
-  <link rel="manifest" href="./manifest.json" />
-  <link rel="icon" href="./icon-192.png" />
-  <link rel="apple-touch-icon" href="./icon-192.png" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="苦手ノート" />
-
   <title>苦手分野 管理ノート</title>
   <style>
     *{box-sizing:border-box} html,body{height:100%;margin:0} body{background:#0f1923;color:#e8dcc8;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent} .app{min-height:100dvh;display:flex;flex-direction:column}.header{position:sticky;top:0;z-index:2;background:linear-gradient(90deg,#1e3a5f,#0f2744);border-bottom:1px solid #2a4a7f;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,0,0,.5)}.eyebrow{font-size:10px;letter-spacing:3px;color:#7aa3d4;font-family:monospace}.title{margin:2px 0 0;font-size:18px;letter-spacing:1px}.main{width:100%;max-width:620px;margin:0 auto;padding:14px 14px 92px}.stats{display:grid;grid-template-columns:repeat(4,1fr);background:#0a1628;border-bottom:1px solid #1e3a5f}.stat{padding:9px 4px;text-align:center;background:#111e33;border-right:1px solid #0a1628}.statNum{font-size:20px;font-weight:800;line-height:1}.statLabel{font-size:9px;color:#7aa3d4;margin-top:4px}.gold{border:0;border-radius:10px;padding:11px 20px;background:linear-gradient(135deg,#c9973a,#e8b84b);color:#1a1a1a;font-weight:800}.back{background:transparent;border:1px solid #2a4a7f;border-radius:10px;padding:10px 14px;color:#7aa3d4}.card{background:rgba(30,58,95,.4);border:1px solid #2a4a7f;border-radius:16px;padding:18px;margin-bottom:12px}.label{font-size:11px;color:#7aa3d4;margin:0 0 6px;letter-spacing:2px}.field{margin-bottom:14px}.input{width:100%;padding:13px;border-radius:10px;background:#0f1f3d;border:1px solid #2a4a7f;color:#e8dcc8;font-size:16px;outline:none}.textarea{resize:vertical;min-height:92px}.levels{display:grid;grid-template-columns:1fr 1fr;gap:8px}.levelBtn{padding:13px 8px;border-radius:10px;background:transparent;font-size:13px}.tabs{overflow-x:auto;padding-bottom:8px;margin-bottom:12px}.tabRow{display:flex;gap:8px;min-width:max-content}.tab{padding:8px 14px;border-radius:20px;border:1px solid #2a4a7f;background:transparent;color:#4a6a8f;font-size:13px;white-space:nowrap}.tab.active{border-color:#7aa3d4;background:rgba(122,163,212,.15);color:#7aa3d4}.empty{text-align:center;padding:60px 20px;color:#4a6a8f}.emptyIcon{font-size:48px;margin-bottom:12px}.list{display:flex;flex-direction:column;gap:10px}.item{background:rgba(30,58,95,.3);border:1px solid #1e3a5f;border-radius:14px;padding:14px 14px 14px 12px}.meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:5px}.subject{font-size:12px;color:#7aa3d4}.pill{font-size:11px;padding:2px 7px;border-radius:999px}.topic{font-size:16px;font-weight:700;line-height:1.4;word-break:break-word}.memoPreview{font-size:12px;color:#7aa3d4;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.date{font-size:11px;color:#4a6a8f;white-space:nowrap}.itemTop{display:flex;justify-content:space-between;gap:8px}.detailMeta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.memoBox{font-size:14px;color:#a0b4cc;line-height:1.8;padding:12px;background:rgba(0,0,0,.2);border-radius:10px;border-left:3px solid #2a4a7f;white-space:pre-wrap}.danger{width:100%;padding:14px;border-radius:12px;background:transparent;border:1px solid #7f2a2a;color:#ef4444}.secondary{width:100%;padding:14px;border-radius:12px;border:1px solid #2a4a7f;background:rgba(122,163,212,.12);color:#e8dcc8;font-weight:700}.actionRow{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}.knowledgeBox{font-size:14px;color:#d6e3f5;line-height:1.85;background:rgba(10,22,40,.62);border:1px solid #2a4a7f;border-radius:12px;padding:14px;margin:12px 0;white-space:pre-wrap}.knowledgeTitle{font-size:11px;color:#7aa3d4;margin-bottom:8px;letter-spacing:2px}.knowledgeList{margin:0;padding-left:1.2em}.knowledgeList li{margin:.25em 0}.hidden{display:none}.footerNote{margin-top:14px;color:#4a6a8f;font-size:12px;line-height:1.6;text-align:center}.aiBtn{width:100%;padding:14px;border-radius:12px;border:1px solid #2a4a7f;background:linear-gradient(135deg,#1e3a5f,#2a5a9f);color:#e8dcc8;font-weight:700}.aiBtn:disabled{opacity:.6;cursor:wait}.answer{font-size:14px;color:#ccdaec;line-height:1.9;white-space:pre-wrap;background:rgba(10,22,40,.72);border:1px solid #2a4a7f;border-radius:12px;padding:14px;margin-top:12px}.smallBtn{border:1px solid #2a4a7f;background:rgba(122,163,212,.12);color:#7aa3d4;border-radius:10px;padding:9px 10px;font-size:13px}.quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.nav{position:fixed;left:0;right:0;bottom:0;z-index:3;background:rgba(10,22,40,.96);border-top:1px solid #2a4a7f;padding:8px 10px calc(8px + env(safe-area-inset-bottom));display:flex;gap:8px;justify-content:center}.nav button{flex:1;max-width:180px;border-radius:12px;border:1px solid #2a4a7f;background:transparent;color:#7aa3d4;padding:10px 8px}.nav button.active{background:rgba(122,163,212,.16);color:#e8dcc8;border-color:#7aa3d4}.warn{font-size:12px;line-height:1.7;color:#f0c36a;background:rgba(240,195,106,.08);border:1px solid rgba(240,195,106,.35);border-radius:10px;padding:10px;margin-bottom:12px}.searchWrap{background:rgba(10,22,40,.55);border:1px solid #2a4a7f;border-radius:14px;padding:10px;margin-bottom:12px}.searchRow{display:flex;gap:8px;align-items:center}.searchInput{flex:1;min-width:0}.clearBtn{border:1px solid #2a4a7f;background:transparent;color:#7aa3d4;border-radius:10px;padding:12px 10px;font-size:13px;white-space:nowrap}.resultCount{margin-top:8px;color:#7aa3d4;font-size:12px;line-height:1.4}.templateCard{background:rgba(30,58,95,.3);border:1px solid #1e3a5f;border-radius:14px;padding:13px;margin-bottom:10px}.templateTitle{font-size:15px;font-weight:800;line-height:1.4}.templateMeta{font-size:12px;color:#7aa3d4;margin-top:5px;line-height:1.5}.templateLink{display:inline-block;margin-top:9px;border:1px solid #2a4a7f;background:rgba(122,163,212,.12);color:#e8dcc8;text-decoration:none;border-radius:10px;padding:8px 10px;font-size:13px}.templateHint{font-size:13px;color:#a0b4cc;line-height:1.7;background:rgba(0,0,0,.18);border-left:3px solid #2a4a7f;border-radius:10px;padding:10px;margin:10px 0}
 .templatePre{max-width:100%;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;background:rgba(5,12,24,.72);border:1px solid #2a4a7f;border-radius:12px;padding:12px;margin:10px 0 0;color:#d6e3f5;font-size:13px;line-height:1.75;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans Mono CJK JP",monospace}.templateLevelBox{margin:10px 0;padding:10px;border:1px solid rgba(122,163,212,.24);border-radius:12px;background:rgba(10,22,40,.45)}.templateLevelTitle{font-size:11px;color:#7aa3d4;letter-spacing:2px;margin-bottom:8px}.templateLevels{display:grid;grid-template-columns:1fr 1fr;gap:7px}.templateLevelBtn{border-radius:10px;background:transparent;padding:10px 6px;font-size:12px}.templateKnowledge{margin-top:10px;background:rgba(10,22,40,.55);border:1px solid #2a4a7f;border-radius:12px;padding:12px;color:#d6e3f5;font-size:13px;line-height:1.75}.templateKnowledge ul{margin:0;padding-left:1.2em}.templateKnowledge li{margin:.28em 0}.templateEditBox{margin-top:10px;border:1px solid #2a4a7f;border-radius:12px;padding:12px;background:rgba(10,22,40,.55)}.templateEditBox textarea{min-height:220px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans Mono CJK JP",monospace}.templateActionRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.templateSaveRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.compareCard{background:rgba(30,58,95,.32);border:1px solid #1e3a5f;border-radius:14px;padding:13px;margin-bottom:10px}.compareTitle{font-size:16px;font-weight:800;line-height:1.45}.compareMeta{font-size:12px;color:#7aa3d4;margin-top:5px}.compareGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}.compareBox{background:rgba(10,22,40,.55);border:1px solid #2a4a7f;border-radius:12px;padding:12px}.compareBoxTitle{font-size:12px;color:#7aa3d4;letter-spacing:1.5px;margin-bottom:8px;font-weight:800}.compareBox ul{margin:0;padding-left:1.2em}.compareBox li{margin:.32em 0;line-height:1.75;font-size:13px;color:#d6e3f5}.compareTags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.compareTag{font-size:11px;color:#7aa3d4;border:1px solid #2a4a7f;background:rgba(122,163,212,.10);border-radius:999px;padding:3px 8px}.compareDetail{margin-top:10px}.compareSelectRow{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px}.compareMini{font-size:12px;color:#a0b4cc;line-height:1.7;margin-top:8px}@media(max-width:430px){.main{padding-left:10px;padding-right:10px}.card,.templateCard{padding:12px}.templatePre{font-size:12px;line-height:1.7}.templateLevels,.levels{grid-template-columns:1fr 1fr}.searchRow{align-items:stretch}.clearBtn{padding-left:8px;padding-right:8px}}
   </style>
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="苦手ノート">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="苦手ノート">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 </head>
 <body>
   <div class="app">
@@ -132,10 +136,6 @@ function esc(s){return String(s??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&l
 function knowledgeKey(s){return String(s||"").replace(/\s+/g," ").replace(/[\s　]+[ァ-ヶーｦ-ﾟA-Za-z0-9\s　]+$/," ").trim()}
 function addThemeKnowledge(subject,topic,add){ const keys=[`${subject}::${topic}`,`${subject}::${knowledgeKey(topic)}`,topic,knowledgeKey(topic)]; keys.forEach(k=>(THEME_KNOWLEDGE[k]||[]).forEach(add)); if(!(keys.some(k=>THEME_KNOWLEDGE[k]))){ const base=knowledgeKey(topic); const found=Object.keys(THEME_KNOWLEDGE).filter(k=>base&&base.length>=2&&(k.endsWith(`::${base}`)||k===base||base.includes(k.split("::").pop())||k.split("::").pop().includes(base))).slice(0,3); found.forEach(k=>THEME_KNOWLEDGE[k].forEach(add)); }}
 function relatedKnowledge(e){
- const customKnowledge=String(e.knowledge||"").trim();
- if(customKnowledge){
-   return customKnowledge.split(/\n+/).map(x=>x.replace(/^[-・●\s　]+/,"").trim()).filter(Boolean).slice(0,12);
- }
  const subject=String(e.subject||"");
  const topic=String(e.topic||"");
  const memo=String(e.memo||"").trim();
@@ -567,7 +567,6 @@ function templateDisplay(t){
    title: edit.title || t.title,
    keys: edit.keys || t.keys || "",
    body: edit.body || applicationTemplate(t),
-   knowledge: edit.knowledge || "",
    original:t
  };
 }
@@ -576,7 +575,7 @@ function templateCard(t,query){
  const key=d.key;
  const current=Number(templateLevels[key]||1);
  const pseudoSubject=d.type==="不動産登記"?"不動産登記法":"商業登記法";
- const k=(d.knowledge?d.knowledge.split(/\n+/).map(x=>x.replace(/^[-・●\s　]+/,"").trim()).filter(Boolean):relatedKnowledge({id:"template-"+key,subject:pseudoSubject,topic:d.title,memo:d.keys})).slice(0,8);
+ const k=relatedKnowledge({id:"template-"+key,subject:pseudoSubject,topic:d.title,memo:d.keys}).slice(0,6);
  const levelHtml=LEVELS.map(l=>`<button type="button" class="templateLevelBtn" onclick="setTemplateLevelInline('${encKey(key)}',${l.value});return false;" data-template-key="${esc(key)}" data-level="${l.value}" style="border:2px solid ${l.color};background:${current===l.value?l.color:'transparent'};color:${current===l.value?'#fff':l.color};font-weight:${current===l.value?'800':'400'}">${l.short}</button>`).join("");
  const editing=editingTemplateKey===key;
  const editBox=editing?`<div class="templateEditBox">
@@ -584,7 +583,6 @@ function templateCard(t,query){
    <div class="field"><div class="label">分類</div><input class="input templateEditCat" data-template-key="${esc(key)}" value="${esc(d.cat)}"></div>
    <div class="field"><div class="label">検索キーワード・関連語</div><input class="input templateEditKeys" data-template-key="${esc(key)}" value="${esc(d.keys)}"></div>
    <div class="field"><div class="label">ひな形本文</div><textarea class="input textarea templateEditBody" data-template-key="${esc(key)}">${esc(d.body)}</textarea></div>
-   <div class="field"><div class="label">関連知識</div><textarea class="input textarea templateEditKnowledge" data-template-key="${esc(key)}" placeholder="1行に1つずつ関連知識を書く">${esc(k.join("\n"))}</textarea></div>
    <div class="templateSaveRow"><button type="button" class="gold templateSaveBtn" onclick="saveTemplateInline('${encKey(key)}');return false;" data-template-key="${esc(key)}">保存する</button><button type="button" class="secondary templateCancelBtn" onclick="cancelTemplateEditInline();return false;" data-template-key="${esc(key)}">キャンセル</button></div>
    <button type="button" class="danger templateResetBtn" onclick="resetTemplateInline('${encKey(key)}');return false;" data-template-key="${esc(key)}" style="margin-top:8px">初期状態に戻す</button>
  </div>`:"";
@@ -729,9 +727,8 @@ window.saveTemplateInline=function(encodedKey){
  const cat=(getTemplateEditField(".templateEditCat",key)?.value||"").trim();
  const keys=(getTemplateEditField(".templateEditKeys",key)?.value||"").trim();
  const body=(getTemplateEditField(".templateEditBody",key)?.value||"").trim();
- const knowledge=(getTemplateEditField(".templateEditKnowledge",key)?.value||"").trim();
  if(!title||!body){alert("タイトルとひな形本文を入力してください");return}
- templateEdits[key]={...(templateEdits[key]||{}),title,cat,keys,body,knowledge};
+ templateEdits[key]={...(templateEdits[key]||{}),title,cat,keys,body};
  saveTemplateEdits();
  editingTemplateKey="";
  refreshTemplateArea();
@@ -806,13 +803,12 @@ function renderTemplates(){
 
 function renderEdit(){
  const e=list.find(x=>x.id===selectedId); if(!e){setView("list");return}
- const draft={subject:e.subject||SUBJECTS[0],topic:e.topic||"",level:Number(e.level)||1,memo:e.memo||"",knowledge:e.knowledge||relatedKnowledge(e).join("\n")};
+ const draft={subject:e.subject||SUBJECTS[0],topic:e.topic||"",level:Number(e.level)||1,memo:e.memo||""};
  $("editView").innerHTML=`<div class="card"><h2 style="margin:0 0 18px;font-size:15px;letter-spacing:2px;color:#7aa3d4">内容を編集</h2>
  <div class="field"><div class="label">科目</div><select id="editSubject" class="input">${SUBJECTS.map(s=>`<option value="${esc(s)}" ${draft.subject===s?'selected':''}>${esc(s)}</option>`).join("")}</select></div>
  <div class="field"><div class="label">テーマ</div><input id="editTopic" class="input" value="${esc(draft.topic)}" placeholder="例: 留置権"></div>
  <div class="field"><div class="label">理解度</div><div class="levels">${LEVELS.map(l=>`<button class="editLevelBtn" data-level="${l.value}" style="border:2px solid ${l.color};background:${draft.level===l.value?l.color:'transparent'};color:${draft.level===l.value?'#fff':l.color};font-weight:${draft.level===l.value?'800':'400'};padding:13px 8px;border-radius:10px;background-clip:padding-box;font-size:13px">${l.label}</button>`).join("")}</div></div>
  <div class="field"><div class="label">メモ</div><textarea id="editMemo" class="input textarea" placeholder="メモを入力">${esc(draft.memo)}</textarea></div>
- <div class="field"><div class="label">関連知識</div><textarea id="editKnowledge" class="input textarea" placeholder="1行に1つずつ関連知識を書く">${esc(draft.knowledge)}</textarea></div>
  <button id="updateBtn" class="gold" style="width:100%;padding:15px;border-radius:12px">保存する</button>
  <div style="height:10px"></div><button id="cancelEditBtn" class="secondary">キャンセル</button>
  <div class="footerNote">保存すると、検索・関連知識・理解度タブにも反映されます。</div></div>`;
@@ -824,8 +820,7 @@ function renderEdit(){
    if(!topic){alert("テーマを入力してください");return}
    const subject=$("editSubject").value;
    const memo=$("editMemo").value.trim();
-   const knowledge=$("editKnowledge").value.trim();
-   list=list.map(x=>x.id===e.id?{...x,subject,topic,level:newLevel,memo,knowledge,updatedAt:new Date().toLocaleDateString("ja-JP")}:x);
+   list=list.map(x=>x.id===e.id?{...x,subject,topic,level:newLevel,memo,updatedAt:new Date().toLocaleDateString("ja-JP")}:x);
    save(); renderStats(); renderList(); setView("detail");
  };
 }
@@ -925,11 +920,13 @@ load();render();
 </script>
 
 <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./sw.js").catch(function(){});
-  });
-}
+(function () {
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(function(){});
+    });
+  }
+})();
 </script>
 
 </body>
