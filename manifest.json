@@ -3,20 +3,12 @@
   "name": "司法書士 苦手ノート",
   "short_name": "苦手ノート",
   "description": "司法書士試験の苦手分野・ひな形・関連知識を管理する学習アプリ",
-  "start_url": "/shiho/?source=pwa",
+  "start_url": "/shiho/",
   "scope": "/shiho/",
   "display": "standalone",
-  "display_override": [
-    "standalone",
-    "minimal-ui"
-  ],
-  "orientation": "portrait",
   "background_color": "#0f1923",
   "theme_color": "#0f1923",
-  "categories": [
-    "education",
-    "productivity"
-  ],
+  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.png",
