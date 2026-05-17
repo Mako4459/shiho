@@ -94,6 +94,32 @@ function levelCountLabel(label, value, list){
   return `${label} ${arr.filter(x => String(x.level || 1) === String(value)).length}`;
 }
 
+function downloadBackup(data){
+
+const blob = new Blob(
+[
+JSON.stringify(data,null,2)
+],
+{
+type:"application/json"
+}
+);
+
+const url =
+URL.createObjectURL(blob);
+
+const a =
+document.createElement("a");
+
+a.href = url;
+
+a.download =
+"shiho-backup-${ new Date() .toISOString() .slice(0,10) }.json";
+
+a.click();
+
+URL.revokeObjectURL(url);
+}
 
 function App(){
   const [data,setData]=React.useState(()=>{ const d=loadData(); if(!Array.isArray(d.templates)||d.templates.length===0){ d.templates=FORCE_TEMPLATES; saveData(d); } return d; });
