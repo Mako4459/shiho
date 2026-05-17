@@ -1043,5 +1043,44 @@ window.addEventListener("load", ()=>{
 })();
 </script>
 
+
+<script>
+(function(){
+function addTodayButton(){
+ if(document.getElementById('today-review-btn-fixed')) return;
+
+ const plusBtn=[...document.querySelectorAll('button')].find(b=>{
+   const t=(b.textContent||'').trim();
+   return t==='+' || t.includes('追加') || t.includes('＋');
+ });
+
+ if(!plusBtn) return;
+
+ const btn=document.createElement('button');
+ btn.id='today-review-btn-fixed';
+ btn.textContent='📌';
+ btn.title='今日やるべき問題';
+ btn.style.cssText=`
+   margin-left:8px;
+   padding:10px 12px;
+   border:none;
+   border-radius:12px;
+   background:#e8b84b;
+   color:#111;
+   font-weight:700;
+ `;
+
+ btn.onclick=function(){
+   alert('今日やるべき問題を表示します');
+ };
+
+ plusBtn.parentNode.insertBefore(btn, plusBtn.nextSibling);
+}
+
+window.addEventListener('load',()=>{
+ setTimeout(addTodayButton,1200);
+});
+})();
+</script>
 </body>
 </html>
