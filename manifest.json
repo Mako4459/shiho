@@ -1,13 +1,14 @@
 {
   "name": "司法書士 苦手ノート",
   "short_name": "苦手ノート",
-  "start_url": "./kugate_note_pwa.html",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0f1923",
   "theme_color": "#0f1923",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     }

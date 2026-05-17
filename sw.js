@@ -1,8 +1,17 @@
+const CACHE_NAME = "shiho-note-v1";
+const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png"];
 
-self.addEventListener('install', (e) => {
+self.addEventListener("install", (event) => {
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
   self.skipWaiting();
 });
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request));
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request).then((res) => res || caches.match("./index.html")))
+  );
 });
