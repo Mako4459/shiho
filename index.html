@@ -19,6 +19,24 @@
   <meta name="apple-mobile-web-app-title" content="苦手ノート">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+
+<style>
+html, body, #root {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+}
+</style>
+<script>
+(function(){
+  window.addEventListener("load", function(){
+    document.documentElement.style.overflowY = "auto";
+    document.body.style.overflowY = "auto";
+    document.body.style.touchAction = "pan-y";
+  });
+})();
+</script>
+
 </head>
 <body>
   <div class="app">
@@ -930,20 +948,165 @@ load();render();
 </script>
 
 
+<script>
+(function(){
+
+function createTodayReviewButton(){
+  if(document.getElementById("today-review-btn")) return;
+
+  const header = document.querySelector("h1");
+  if(!header) return;
+
+  const btn = document.createElement("button");
+  btn.id = "today-review-btn";
+  btn.innerText = "📌 今日やるべき問題";
+  btn.style.cssText = `
+    margin-top:12px;
+    padding:12px 16px;
+    border:none;
+    border-radius:12px;
+    background:#e8b84b;
+    color:#111;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    width:100%;
+  `;
+
+  btn.onclick = function(){
+    try{
+      const raw = localStorage.getItem("shihoshoshi");
+      if(!raw){
+        alert("データがありません");
+        return;
+      }
+
+      let data = JSON.parse(raw);
+
+      // 優先順位:
+      // 理解度低い + 古い
+      data.sort((a,b)=>{
+        const lvA = Number(a.level || 1);
+        const lvB = Number(b.level || 1);
+
+        const scoreA = (5 - lvA);
+        const scoreB = (5 - lvB);
+
+        return scoreB - scoreA;
+      });
+
+      const top = data.slice(0,10);
+
+      const old = document.getElementById("today-review-area");
+      if(old) old.remove();
+
+      const area = document.createElement("div");
+      area.id = "today-review-area";
+      area.style.cssText = `
+        margin-top:16px;
+        background:rgba(30,58,95,.35);
+        border:1px solid #2a4a7f;
+        border-radius:16px;
+        padding:16px;
+      `;
+
+      const title = document.createElement("h2");
+      title.innerText = "今日やるべき問題";
+      title.style.cssText = `
+        margin:0 0 12px;
+        font-size:18px;
+        color:#e8dcc8;
+      `;
+      area.appendChild(title);
+
+      top.forEach((item, idx)=>{
+        const card = document.createElement("div");
+        card.style.cssText = `
+          padding:12px;
+          border-radius:12px;
+          margin-bottom:10px;
+          background:rgba(15,31,61,.7);
+          border-left:4px solid #e8b84b;
+        `;
+
+        card.innerHTML = `
+          <div style="font-size:12px;color:#7aa3d4;margin-bottom:4px;">
+            ${idx+1}. ${item.subject || ""}
+          </div>
+          <div style="font-size:16px;font-weight:700;color:#fff;">
+            ${item.topic || ""}
+          </div>
+          <div style="font-size:12px;color:#ccc;margin-top:6px;">
+            理解度: ${item.level || 1}
+          </div>
+        `;
+
+        area.appendChild(card);
+      });
+
+      btn.parentNode.insertBefore(area, btn.nextSibling);
+
+    }catch(e){
+      alert("読み込みエラー");
+    }
+  };
+
+  header.parentNode.appendChild(btn);
+}
+
+window.addEventListener("load", ()=>{
+  setTimeout(createTodayReviewButton, 1200);
+});
+
+})();
+</script>
 
 
+<script>
+(function(){
+function addTodayButton(){
+ if(document.getElementById('today-review-btn-fixed')) return;
 
+ const plusBtn=[...document.querySelectorAll('button')].find(b=>{
+   const t=(b.textContent||'').trim();
+   return t==='+' || t.includes('追加') || t.includes('＋');
+ });
 
+ if(!plusBtn) return;
 
+ const btn=document.createElement('button');
+ btn.id='today-review-btn-fixed';
+ btn.textContent='📌';
+ btn.title='今日やるべき問題';
+ btn.style.cssText=`
+   margin-left:8px;
+   padding:10px 12px;
+   border:none;
+   border-radius:12px;
+   background:#e8b84b;
+   color:#111;
+   font-weight:700;
+ `;
 
+ btn.onclick=function(){
+   alert('今日やるべき問題を表示します');
+ };
 
+ plusBtn.parentNode.insertBefore(btn, plusBtn.nextSibling);
+}
+
+window.addEventListener('load',()=>{
+ setTimeout(addTodayButton,1200);
+});
+})();
+</script>
 
 <script>
 (function(){
   const UNIFIED_KEY = "shihoUnifiedData";
 
-  function safeParse(v, fallback){
-    try { return JSON.parse(v); } catch(e) { return fallback; }
+  function safeJsonParse(value, fallback){
+    try { return JSON.parse(value); } catch(e) { return fallback; }
   }
 
   function normalizeProblem(item, index){
@@ -951,8 +1114,9 @@ load();render();
     const topic = item.topic || item.title || item.name || item.question || "";
     const subject = item.subject || item.category || item.kamoku || "";
     if(!topic && !subject) return null;
+
     return {
-      id: item.id || ("p_" + index + "_" + Math.random().toString(36).slice(2)),
+      id: item.id || ("p_" + Date.now() + "_" + index),
       type: "problem",
       subject: subject || "未分類",
       topic: topic || "無題",
@@ -961,8 +1125,7 @@ load();render();
       level: Number(item.level || item.understanding || 1),
       mistakes: Number(item.mistakes || item.miss || item.wrongCount || 0),
       reviewCount: Number(item.reviewCount || 0),
-      lastViewed: item.lastViewed || item.lastReviewed || "",
-      lastReviewed: item.lastReviewed || "",
+      lastReviewed: item.lastReviewed || item.updatedAt || item.date || "",
       createdAt: item.createdAt || item.date || new Date().toISOString()
     };
   }
@@ -972,8 +1135,9 @@ load();render();
     const title = item.title || item.topic || item.name || "";
     const body = item.body || item.template || item.content || item.text || "";
     if(!title && !body) return null;
+
     return {
-      id: item.id || ("t_" + index + "_" + Math.random().toString(36).slice(2)),
+      id: item.id || ("t_" + Date.now() + "_" + index),
       type: "template",
       subject: item.subject || item.category || "ひな形",
       title: title || "無題ひな形",
@@ -983,26 +1147,19 @@ load();render();
       level: Number(item.level || item.understanding || 1),
       mistakes: Number(item.mistakes || 0),
       reviewCount: Number(item.reviewCount || 0),
-      lastViewed: item.lastViewed || item.lastReviewed || "",
-      lastReviewed: item.lastReviewed || "",
+      lastReviewed: item.lastReviewed || item.updatedAt || item.date || "",
       createdAt: item.createdAt || item.date || new Date().toISOString()
     };
   }
 
-  function migrate(){
-    const existing = safeParse(localStorage.getItem(UNIFIED_KEY), null);
-    if(existing && (Array.isArray(existing.problems) || Array.isArray(existing.templates))){
-      existing.problems = (existing.problems || []).map(normalizeProblem).filter(Boolean);
-      existing.templates = (existing.templates || []).map(normalizeTemplate).filter(Boolean);
-      localStorage.setItem(UNIFIED_KEY, JSON.stringify(existing));
-      return existing;
-    }
-
+  function collectExistingData(){
+    const keys = Object.keys(localStorage);
     let problems = [];
     let templates = [];
-    Object.keys(localStorage).forEach(function(key){
-      if(key === UNIFIED_KEY) return;
-      const parsed = safeParse(localStorage.getItem(key), null);
+
+    keys.forEach(function(key){
+      const raw = localStorage.getItem(key);
+      const parsed = safeJsonParse(raw, null);
       if(!parsed) return;
 
       if(Array.isArray(parsed)){
@@ -1011,117 +1168,120 @@ load();render();
           if(p) problems.push(p);
         });
       } else if(typeof parsed === "object"){
-        ["problems","list","items","entries","shihoshoshi"].forEach(function(k){
-          if(Array.isArray(parsed[k])){
-            parsed[k].forEach(function(item, i){
-              const p = normalizeProblem(item, i);
-              if(p) problems.push(p);
-            });
-          }
+        const possibleProblemArrays = [
+          parsed.problems, parsed.list, parsed.items, parsed.entries, parsed.shihoshoshi
+        ].filter(Array.isArray);
+
+        possibleProblemArrays.forEach(function(arr){
+          arr.forEach(function(item, i){
+            const p = normalizeProblem(item, i);
+            if(p) problems.push(p);
+          });
         });
-        ["templates","hinagata","forms"].forEach(function(k){
-          if(Array.isArray(parsed[k])){
-            parsed[k].forEach(function(item, i){
-              const t = normalizeTemplate(item, i);
-              if(t) templates.push(t);
-            });
-          }
+
+        const possibleTemplateArrays = [
+          parsed.templates, parsed.hinagata, parsed.forms
+        ].filter(Array.isArray);
+
+        possibleTemplateArrays.forEach(function(arr){
+          arr.forEach(function(item, i){
+            const t = normalizeTemplate(item, i);
+            if(t) templates.push(t);
+          });
         });
       }
     });
 
-    const seen = new Set();
+    // 重複削除
+    const seenP = new Set();
     problems = problems.filter(function(p){
-      const k = p.subject + "::" + p.topic + "::" + p.memo;
-      if(seen.has(k)) return false;
-      seen.add(k);
+      const key = p.subject + "::" + p.topic + "::" + p.memo;
+      if(seenP.has(key)) return false;
+      seenP.add(key);
       return true;
     });
 
-    const data = { problems, templates, migratedAt: new Date().toISOString() };
+    const seenT = new Set();
+    templates = templates.filter(function(t){
+      const key = t.subject + "::" + t.title + "::" + t.body.slice(0, 50);
+      if(seenT.has(key)) return false;
+      seenT.add(key);
+      return true;
+    });
+
+    return { problems, templates, migratedAt: new Date().toISOString() };
+  }
+
+  function getUnifiedData(){
+    const existing = safeJsonParse(localStorage.getItem(UNIFIED_KEY), null);
+    if(existing && (Array.isArray(existing.problems) || Array.isArray(existing.templates))){
+      return existing;
+    }
+    const collected = collectExistingData();
+    localStorage.setItem(UNIFIED_KEY, JSON.stringify(collected));
+    return collected;
+  }
+
+  function saveUnifiedData(data){
     localStorage.setItem(UNIFIED_KEY, JSON.stringify(data));
-    return data;
   }
 
-  function getData(){ return migrate(); }
-  function saveData(data){ localStorage.setItem(UNIFIED_KEY, JSON.stringify(data)); }
-
-  function fmt(value){
-    if(!value) return "未記録";
-    const d = new Date(value);
-    if(isNaN(d.getTime())) return "未記録";
-    return d.getFullYear() + "/" +
-      String(d.getMonth()+1).padStart(2,"0") + "/" +
-      String(d.getDate()).padStart(2,"0") + " " +
-      String(d.getHours()).padStart(2,"0") + ":" +
-      String(d.getMinutes()).padStart(2,"0");
-  }
-
-  function score(item){
-    const lv = Number(item.level || 1);
+  function scoreItem(item){
+    const level = Number(item.level || 1);
     const mistakes = Number(item.mistakes || 0);
-    const reviews = Number(item.reviewCount || 0);
+    const reviewCount = Number(item.reviewCount || 0);
+
     let days = 999;
-    const baseDate = item.lastViewed || item.lastReviewed || item.createdAt;
-    if(baseDate){
-      const t = new Date(baseDate).getTime();
+    const last = item.lastReviewed || item.createdAt;
+    if(last){
+      const t = new Date(last).getTime();
       if(!isNaN(t)) days = Math.floor((Date.now() - t) / 86400000);
     }
-    return (5-lv)*100 + mistakes*20 + Math.min(days,90) - reviews*5;
+
+    return (5 - level) * 100 + mistakes * 20 + Math.min(days, 60) - reviewCount * 5;
   }
 
-  function markViewed(id){
-    const data = getData();
-    data.problems = (data.problems || []).map(function(p){
-      if(String(p.id) === String(id)){
-        return Object.assign({}, p, {
-          lastViewed: new Date().toISOString()
-        });
-      }
-      return p;
-    });
-    saveData(data);
-  }
-
-  function markReviewed(id, btn){
-    const data = getData();
-    data.problems = (data.problems || []).map(function(p){
-      if(String(p.id) === String(id)){
-        return Object.assign({}, p, {
-          reviewCount: Number(p.reviewCount || 0) + 1,
-          lastViewed: new Date().toISOString(),
-          lastReviewed: new Date().toISOString()
-        });
-      }
-      return p;
-    });
-    saveData(data);
-    if(btn){
-      btn.textContent = "復習済み";
-      btn.disabled = true;
-      btn.style.opacity = ".65";
-    }
-  }
-
-  function openTodayReview(){
-    document.querySelectorAll("#today-review-panel").forEach(function(el){ el.remove(); });
-
-    const data = getData();
-    const problems = data.problems || [];
+  function showTodayReview(){
+    const data = getUnifiedData();
+    const problems = Array.isArray(data.problems) ? data.problems : [];
     if(!problems.length){
-      alert("問題データが見つかりません。問題を追加・編集してから再度開いてください。");
+      alert("問題データが見つかりません。いったん一覧で問題を追加・編集すると読み込まれます。");
       return;
     }
 
-    const items = problems.slice().sort(function(a,b){ return score(b) - score(a); }).slice(0,10);
+    const selected = problems
+      .slice()
+      .sort((a,b) => scoreItem(b) - scoreItem(a))
+      .slice(0, 10);
+
+    let old = document.getElementById("today-review-panel");
+    if(old) old.remove();
 
     const panel = document.createElement("div");
     panel.id = "today-review-panel";
-    panel.style.cssText = "position:fixed;inset:0;z-index:999999;background:#0f1923;color:#e8dcc8;overflow-y:auto;padding:16px;font-family:sans-serif;";
+    panel.style.cssText = `
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      background: #0f1923;
+      color: #e8dcc8;
+      overflow-y: auto;
+      padding: 16px;
+      font-family: sans-serif;
+    `;
 
     const close = document.createElement("button");
     close.textContent = "× 閉じる";
-    close.style.cssText = "width:100%;padding:12px;border-radius:12px;border:1px solid #2a4a7f;background:#1e3a5f;color:#e8dcc8;font-weight:700;margin-bottom:14px;";
+    close.style.cssText = `
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid #2a4a7f;
+      background:#1e3a5f;
+      color:#e8dcc8;
+      font-weight:700;
+      margin-bottom:14px;
+    `;
     close.onclick = function(){ panel.remove(); };
     panel.appendChild(close);
 
@@ -1130,59 +1290,62 @@ load();render();
     h.style.cssText = "font-size:20px;margin:0 0 12px;color:#fff;";
     panel.appendChild(h);
 
-    items.forEach(function(item, idx){
+    selected.forEach(function(item, idx){
       const card = document.createElement("div");
-      card.style.cssText = "background:rgba(30,58,95,.45);border:1px solid #2a4a7f;border-left:5px solid #e8b84b;border-radius:14px;padding:14px;margin-bottom:12px;";
+      card.style.cssText = `
+        background: rgba(30,58,95,.45);
+        border: 1px solid #2a4a7f;
+        border-left: 5px solid #e8b84b;
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 12px;
+      `;
 
-      const bodyId = "today_body_" + String(item.id).replace(/[^a-zA-Z0-9_-]/g,"");
-      const showBtnId = "show_" + bodyId;
-      const doneBtnId = "done_" + bodyId;
-
+      const doneBtnId = "done_" + item.id;
       card.innerHTML = `
         <div style="font-size:12px;color:#7aa3d4;margin-bottom:4px;">${idx+1}. ${item.subject || "未分類"}</div>
-        <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.5;">${item.topic || "無題"}</div>
-        <div style="font-size:12px;color:#9fb6d1;margin-top:7px;">最後に見た日: ${fmt(item.lastViewed)}</div>
-        <div style="font-size:12px;color:#7aa3d4;margin-top:4px;">理解度: ${item.level || 1} ／ 間違え: ${item.mistakes || 0} ／ 復習: ${item.reviewCount || 0}</div>
-        <button id="${showBtnId}" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid #2a4a7f;background:#10223d;color:#e8dcc8;font-weight:700;">内容を表示する</button>
-        <div id="${bodyId}" style="display:none;margin-top:10px;">
-          ${item.memo ? `<div style="font-size:13px;color:#b9c7d8;line-height:1.6;margin-bottom:8px;">${item.memo}</div>` : ""}
-          ${item.knowledge ? `<div style="font-size:13px;color:#e8dcc8;line-height:1.7;background:rgba(0,0,0,.18);padding:10px;border-radius:10px;">${item.knowledge}</div>` : ""}
-        </div>
+        <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.5;">${item.topic || item.title || "無題"}</div>
+        ${item.memo ? `<div style="font-size:13px;color:#b9c7d8;margin-top:8px;line-height:1.6;">${item.memo}</div>` : ""}
+        ${item.knowledge ? `<div style="font-size:13px;color:#e8dcc8;margin-top:8px;line-height:1.7;background:rgba(0,0,0,.18);padding:10px;border-radius:10px;">${item.knowledge}</div>` : ""}
+        <div style="font-size:12px;color:#7aa3d4;margin-top:8px;">理解度: ${item.level || 1} ／ 間違え: ${item.mistakes || 0} ／ 復習: ${item.reviewCount || 0}</div>
         <button id="${doneBtnId}" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:none;background:#e8b84b;color:#111;font-weight:700;">今日復習した</button>
       `;
       panel.appendChild(card);
 
       setTimeout(function(){
-        const showBtn = document.getElementById(showBtnId);
-        const body = document.getElementById(bodyId);
-        if(showBtn && body){
-          showBtn.onclick = function(){
-            markViewed(item.id);
-            body.style.display = body.style.display === "none" ? "block" : "none";
-            showBtn.textContent = body.style.display === "none" ? "内容を表示する" : "内容を閉じる";
+        const btn = document.getElementById(doneBtnId);
+        if(btn){
+          btn.onclick = function(){
+            const latest = getUnifiedData();
+            latest.problems = (latest.problems || []).map(function(p){
+              if(p.id === item.id){
+                return Object.assign({}, p, {
+                  reviewCount: Number(p.reviewCount || 0) + 1,
+                  lastReviewed: new Date().toISOString()
+                });
+              }
+              return p;
+            });
+            saveUnifiedData(latest);
+            btn.textContent = "復習済み";
+            btn.disabled = true;
+            btn.style.opacity = ".65";
           };
         }
-        const doneBtn = document.getElementById(doneBtnId);
-        if(doneBtn){
-          doneBtn.onclick = function(){ markReviewed(item.id, doneBtn); };
-        }
-      },0);
+      }, 0);
     });
 
     document.body.appendChild(panel);
   }
 
-  function addButton(){
-    document.querySelectorAll("#today-review-main-btn,#today-review-btn-fixed,#today-review-btn").forEach(function(el){
-      if(el.id !== "today-review-main-btn") el.remove();
-    });
-
+  function addTodayButton(){
     if(document.getElementById("today-review-main-btn")) return;
 
     const plusBtn = Array.from(document.querySelectorAll("button")).find(function(b){
       const t = (b.textContent || "").trim();
       return t === "＋" || t === "+" || t.includes("追加");
     });
+
     if(!plusBtn || !plusBtn.parentNode) return;
 
     const btn = document.createElement("button");
@@ -1190,148 +1353,76 @@ load();render();
     btn.type = "button";
     btn.textContent = "📌";
     btn.title = "今日やるべき問題";
-    btn.style.cssText = "margin-left:8px;padding:10px 12px;border:none;border-radius:12px;background:#e8b84b;color:#111;font-weight:700;font-size:16px;";
-    btn.onclick = openTodayReview;
+    btn.style.cssText = `
+      margin-left:8px;
+      padding:10px 12px;
+      border:none;
+      border-radius:12px;
+      background:#e8b84b;
+      color:#111;
+      font-weight:700;
+      font-size:16px;
+    `;
+    btn.onclick = showTodayReview;
+
     plusBtn.parentNode.insertBefore(btn, plusBtn.nextSibling);
   }
 
-  window.shihoShowTodayReview = openTodayReview;
+  window.shihoGetUnifiedData = getUnifiedData;
+  window.shihoShowTodayReview = showTodayReview;
+
   window.addEventListener("load", function(){
-    setTimeout(function(){ getData(); addButton(); }, 800);
-    setInterval(addButton, 1500);
+    setTimeout(function(){
+      getUnifiedData();
+      addTodayButton();
+    }, 1000);
+    setInterval(addTodayButton, 1500);
   });
 })();
 </script>
 
 
-
-
-
 <script>
 (function(){
-  const VIEW_KEY = "shihoCardLastViewedV2";
-
-  function loadMap(){
-    try { return JSON.parse(localStorage.getItem(VIEW_KEY) || "{}"); }
-    catch(e){ return {}; }
-  }
-
-  function saveMap(map){
-    localStorage.setItem(VIEW_KEY, JSON.stringify(map));
-  }
-
-  function fmt(value){
-    if(!value) return "未記録";
-    const d = new Date(value);
+  const KEY = "shihoLastViewedByTopic";
+  function read(){ try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}} }
+  function write(m){ localStorage.setItem(KEY, JSON.stringify(m)); }
+  function fmt(v){
+    if(!v) return "未記録";
+    const d = new Date(v);
     if(isNaN(d.getTime())) return "未記録";
-    return d.getFullYear() + "/" +
-      String(d.getMonth()+1).padStart(2,"0") + "/" +
-      String(d.getDate()).padStart(2,"0") + " " +
-      String(d.getHours()).padStart(2,"0") + ":" +
-      String(d.getMinutes()).padStart(2,"0");
+    return d.getFullYear()+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
   }
-
-  function normalizeText(s){
-    return String(s || "").replace(/\s+/g, " ").trim();
+  function themeOf(card){
+    const lines=(card.innerText||"").split("\\n").map(s=>s.trim()).filter(Boolean);
+    const ignore=["民法","不動産登記法","商法・会社法","商業登記法","未理解","不安","普通","自信あり","Excel取込"];
+    return lines.find(x=>!ignore.some(i=>x.includes(i)) && !x.includes("【ソース】") && !x.includes("最後に見た日") && x.length>1) || "";
   }
-
-  function getThemeFromCard(card){
-    const lines = (card.innerText || "")
-      .split("\n")
-      .map(s => s.trim())
-      .filter(Boolean);
-
-    const subjects = ["民法","不動産登記法","商法・会社法","商業登記法","民事訴訟法","民事保全法","民事執行法","供託法","司法書士法","憲法","刑法"];
-    const ignores = [
-      "Excel取込","未理解","不安","普通","自信あり","理解できていない","少し不安","まあまあ",
-      "最後に見た日"
-    ];
-
-    for(const line of lines){
-      if(subjects.includes(line)) continue;
-      if(ignores.some(x => line.includes(x))) continue;
-      if(line.includes("【ソース】")) continue;
-      if(line.length <= 1) continue;
-      return line;
-    }
-    return normalizeText(lines.join(" ")).slice(0,80);
-  }
-
-  function findListCards(){
-    const candidates = Array.from(document.querySelectorAll("div"));
-    return candidates.filter(el => {
-      const txt = el.innerText || "";
-      const rect = el.getBoundingClientRect();
-
-      if(rect.width < 240 || rect.height < 70) return false;
-      if(!txt.includes("Excel取込")) return false;
-      if(!/(民法|不動産登記法|商法・会社法|商業登記法|民事訴訟法|民事保全法|民事執行法|供託法|司法書士法|憲法|刑法)/.test(txt)) return false;
-      if(!/(未理解|不安|普通|自信あり|理解できていない|少し不安|まあまあ)/.test(txt)) return false;
-
-      // 最も内側のカードだけにする
-      const childHasSame = Array.from(el.children).some(ch => {
-        const t = ch.innerText || "";
-        const r = ch.getBoundingClientRect();
-        return r.width > 200 && r.height > 60 && t.includes("Excel取込") && /(未理解|不安|普通|自信あり)/.test(t);
-      });
-      return !childHasSame;
+  function cards(){
+    return [...document.querySelectorAll("div")].filter(el=>{
+      const t=el.innerText||"", r=el.getBoundingClientRect();
+      return r.width>240 && r.height>80 && t.includes("Excel取込") && /(未理解|不安|普通|自信あり)/.test(t) && ![...el.children].some(c=>(c.innerText||"").includes("Excel取込") && /(未理解|不安|普通|自信あり)/.test(c.innerText||""));
     });
   }
-
   function render(){
-    const map = loadMap();
-    const cards = findListCards();
-
-    cards.forEach(card => {
-      const theme = getThemeFromCard(card);
-      if(!theme) return;
-
-      card.dataset.shihoLastViewedKey = theme;
-
-      let label = card.querySelector(".shiho-last-viewed-label");
+    const map=read();
+    cards().forEach(card=>{
+      const theme=themeOf(card); if(!theme) return;
+      let label=card.querySelector(".direct-last-view-label");
       if(!label){
-        label = document.createElement("div");
-        label.className = "shiho-last-viewed-label";
-        label.style.cssText = [
-          "margin-top:8px",
-          "font-size:12px",
-          "line-height:1.5",
-          "color:#e8b84b",
-          "font-weight:700",
-          "background:rgba(232,184,75,.10)",
-          "border:1px solid rgba(232,184,75,.35)",
-          "border-radius:8px",
-          "padding:6px 8px"
-        ].join(";");
-
+        label=document.createElement("div");
+        label.className="direct-last-view-label";
+        label.style.cssText="font-size:12px;color:#e8b84b;margin-top:6px;font-weight:700;";
         card.appendChild(label);
-
-        card.addEventListener("click", function(){
-          const key = card.dataset.shihoLastViewedKey || theme;
-          const latest = loadMap();
-          latest[key] = new Date().toISOString();
-          saveMap(latest);
-          setTimeout(render, 250);
-        }, true);
+        card.addEventListener("click",()=>{
+          const m=read(); m[theme]=new Date().toISOString(); write(m);
+        }, {capture:true});
       }
-
-      label.textContent = "最後に見た日: " + fmt(map[theme]);
+      label.textContent="最後に見た日: "+fmt(map[theme]);
     });
   }
-
-  window.addEventListener("load", function(){
-    setTimeout(render, 500);
-    setInterval(render, 1200);
-  });
-
-  const mo = new MutationObserver(function(){ render(); });
-  window.addEventListener("load", function(){
-    if(document.body) mo.observe(document.body, { childList:true, subtree:true });
-  });
-
-  document.addEventListener("click", function(){
-    setTimeout(render, 300);
-  }, true);
+  window.addEventListener("load",()=>{setTimeout(render,700); setInterval(render,2000);});
+  document.addEventListener("click",()=>setTimeout(render,300), true);
 })();
 </script>
 
