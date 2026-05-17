@@ -138,8 +138,9 @@ function saveData(data){ localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 function score(p){ const lv=Number(p.level||1), mistakes=Number(p.mistakes||0), reviews=Number(p.reviewCount||0); let days=999; const bd=p.lastViewed||p.lastReviewed||p.createdAt; if(bd){const t=new Date(bd).getTime(); if(!Number.isNaN(t)) days=Math.floor((Date.now()-t)/86400000);} return (5-lv)*100+mistakes*20+Math.min(days,90)-reviews*5; }
 
 function levelCountLabel(label, value, list){
-  if(value === "all") return `${label} ${list.length}`;
-  return `${label} ${list.filter(x => String(x.level) === String(value)).length}`;
+  const arr = Array.isArray(list) ? list : [];
+  if(String(value) === "all") return `${label} ${arr.length}`;
+  return `${label} ${arr.filter(x => String(x.level || 1) === String(value)).length}`;
 }
 
 
@@ -163,14 +164,20 @@ function App(){
   const filteredProblems=data.problems.filter(p=>(levelFilter==="all"||String(p.level)===String(levelFilter))&&(!q||[p.subject,p.topic,p.memo,p.knowledge].join(" ").toLowerCase().includes(q)));
   const templateSource=(Array.isArray(data.templates)&&data.templates.length>0)?data.templates:FORCE_TEMPLATES; const filteredTemplates=templateSource.filter(t=>(levelFilter==="all"||String(t.level)===String(levelFilter))&&(!q||[t.category,t.title,t.body,t.knowledge].join(" ").toLowerCase().includes(q)));
   const today=data.problems.slice().sort((a,b)=>score(b)-score(a)).slice(0,10);
-  const countTemplateSource=(Array.isArray(data.templates)&&data.templates.length>0)?data.templates:(typeof FORCE_TEMPLATES!=="undefined"?FORCE_TEMPLATES:[]);
+
+  const problemCountSource = Array.isArray(data.problems) ? data.problems : [];
+  const templateCountSource = (Array.isArray(data.templates) && data.templates.length > 0)
+    ? data.templates
+    : (typeof FORCE_TEMPLATES !== "undefined" ? FORCE_TEMPLATES : []);
+  const activeCountSource = tab === "templates" ? templateCountSource : problemCountSource;
+
   const d=currentDetail();
   if(d) return <Detail item={d} type={detail.type} onBack={()=>setDetail(null)} updateProblem={updateProblem} updateTemplate={updateTemplate} setEditing={setEditing} />;
 
   return <div className="app">
     <div className="header"><div className="title"><small>JUDICIAL SCRIVENER</small><b>苦手分野 管理ノート</b></div><div className="row"><button className="hbtn" onClick={()=>setTab("today")}>📌</button><button className="hbtn" onClick={()=>setEditing({type:"newProblem"})}>＋</button></div></div>
     <div className="tabs">{["problems","templates","compare","today"].map(t=><button key={t} className={"tab "+(tab===t?"active":"")} onClick={()=>setTab(t)}>{{problems:"一覧",templates:"ひな形",compare:"横断比較",today:"今日"}[t]}</button>)}</div>
-    {(tab==="problems"||tab==="templates")&&<div className="tabs">{[{value:"all",label:"全て"},...LEVELS].map(l=>{ const countSource = tab==="templates" ? countTemplateSource : data.problems; return <button key={l.value} className={"tab "+(String(levelFilter)===String(l.value)?"active":"")} onClick={()=>setLevelFilter(l.value)}>{levelCountLabel(l.label,l.value,countSource)}</button>; })}</div>}
+    {(tab==="problems"||tab==="templates")&&<div className="tabs">{[{value:"all",label:"全て"},...LEVELS].map(l=><button key={l.value} className={"tab "+(String(levelFilter)===String(l.value)?"active":"")} onClick={()=>setLevelFilter(l.value)}>{levelCountLabel(l.label,l.value,activeCountSource)}</button>)}</div>}
     {(tab==="problems"||tab==="templates")&&<div style={{padding:"8px 12px",background:"#0a1628"}}><div className="row"><input className="input" value={searchInput} onChange={e=>setSearchInput(e.target.value)} placeholder="検索語を入力" /><button className="btn gold" onClick={()=>setSearch(searchInput)}>検索</button><button className="btn" onClick={()=>{setSearchInput("");setSearch("");}}>クリア</button></div></div>}
     <div className="body">
       {tab==="problems"&&filteredProblems.map(p=><ProblemCard key={p.id} p={p} onClick={()=>openProblem(p)} />)}
