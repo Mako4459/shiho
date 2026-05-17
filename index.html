@@ -4,23 +4,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>司法書士 苦手ノート</title><style>
 :root{
-  --bg:#0f1923;
-  --card:rgba(30,58,95,.35);
-  --card2:rgba(255,255,255,.05);
-  --text:#e8dcc8;
-  --sub:#b9c7d8;
+  --bg:#07111f;
+  --header:#0d2240;
+  --card:#10233f;
+  --card2:#152d4d;
+  --text:#f3ead7;
+  --sub:#aebcd3;
   --accent:#d4af37;
-  --border:rgba(255,255,255,.08);
+  --border:#24476f;
 }
 
 body.white-theme{
-  --bg:#f3f3f3;
+  --bg:#f2f2f2;
+  --header:#ffffff;
   --card:#ffffff;
   --card2:#ececec;
   --text:#222222;
-  --sub:#555555;
-  --accent:#b8860b;
-  --border:#d0d0d0;
+  --sub:#666666;
+  --accent:#c29214;
+  --border:#d6d6d6;
 }
 
 *{
@@ -38,99 +40,157 @@ body{
 header{
   position:sticky;
   top:0;
-  z-index:10;
-  backdrop-filter:blur(12px);
-  background:rgba(0,0,0,.25);
-  padding:12px;
+  z-index:999;
+  background:var(--header);
   border-bottom:1px solid var(--border);
+  padding:16px;
 }
 
 .topbar{
   display:flex;
-  gap:8px;
   align-items:center;
+  gap:10px;
 }
 
-.title{
-  font-size:20px;
-  font-weight:700;
+.logo{
   flex:1;
+}
+
+.logo small{
+  display:block;
+  letter-spacing:4px;
+  color:var(--sub);
+  font-size:10px;
+}
+
+.logo h1{
+  margin:2px 0 0;
+  font-size:22px;
 }
 
 .hbtn{
   border:none;
-  border-radius:12px;
-  padding:10px 12px;
-  background:var(--card);
-  color:var(--text);
-  cursor:pointer;
-  font-size:16px;
-}
-
-.container{
-  padding:14px;
-}
-
-.search{
-  width:100%;
-  padding:14px;
-  border:none;
   border-radius:16px;
-  background:var(--card);
-  color:var(--text);
-  margin-bottom:12px;
-  font-size:16px;
+  background:var(--accent);
+  color:#111;
+  width:60px;
+  height:60px;
+  font-size:24px;
+  font-weight:bold;
 }
 
 .tabs{
   display:flex;
-  gap:8px;
+  gap:10px;
   overflow:auto;
-  margin-bottom:14px;
+  padding:14px;
 }
 
 .tab{
-  white-space:nowrap;
-  border:none;
-  border-radius:999px;
-  padding:10px 14px;
-  background:var(--card2);
+  border:1px solid var(--border);
+  background:transparent;
   color:var(--text);
-  cursor:pointer;
+  border-radius:999px;
+  padding:12px 18px;
+  white-space:nowrap;
+  font-size:16px;
 }
 
 .tab.active{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+.search-wrap{
+  display:flex;
+  gap:10px;
+  padding:0 14px 14px;
+}
+
+.search{
+  flex:1;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  color:var(--text);
+  font-size:18px;
+}
+
+.search-btn{
+  width:80px;
+  border:none;
+  border-radius:18px;
   background:var(--accent);
   color:#111;
-  font-weight:700;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.clear-btn{
+  width:80px;
+  border:none;
+  border-radius:18px;
+  background:#3f5273;
+  color:#fff;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.list{
+  padding:14px;
 }
 
 .card{
   background:var(--card);
-  border-radius:18px;
-  padding:16px;
-  margin-bottom:14px;
   border:1px solid var(--border);
+  border-radius:24px;
+  padding:20px;
+  margin-bottom:18px;
 }
 
-.subject{
-  color:var(--accent);
-  font-size:13px;
-  margin-bottom:6px;
+.badges{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.badge{
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:14px;
+}
+
+.badge.red{
+  color:#ff8080;
+}
+
+.badge.orange{
+  color:#ffb84d;
+}
+
+.badge.green{
+  color:#66ff99;
 }
 
 .topic{
-  font-size:18px;
+  font-size:42px;
   font-weight:700;
-  margin-bottom:8px;
+  margin-bottom:18px;
+}
+
+.memo{
+  color:var(--sub);
+  line-height:1.8;
+  font-size:17px;
+  margin-bottom:18px;
 }
 
 .meta{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  color:var(--sub);
-  font-size:13px;
+  color:var(--accent);
+  font-size:16px;
+  line-height:1.8;
 }
 
 .bottom-nav{
@@ -139,8 +199,7 @@ header{
   left:0;
   right:0;
   display:flex;
-  background:rgba(0,0,0,.35);
-  backdrop-filter:blur(12px);
+  background:var(--header);
   border-top:1px solid var(--border);
 }
 
@@ -149,8 +208,8 @@ header{
   border:none;
   background:none;
   color:var(--text);
-  padding:14px 0;
-  font-size:14px;
+  padding:16px 0;
+  font-size:18px;
 }
 
 .bottom-nav button.active{
@@ -159,49 +218,107 @@ header{
 }
 
 .spacer{
-  height:90px;
+  height:100px;
 }
-</style></head><body><header>
-  <div class="topbar">
-    <div class="title">司法書士 苦手ノート</div>
-    <button class="hbtn" onclick="toggleTheme()">☀️</button>
-  </div>
-</header><div class="container"><input
+</style></head><body><header>  <div class="topbar"><div class="logo">
+  <small>JUDICIAL SCRIVENER</small>
+  <h1>苦手分野 管理ノート</h1>
+</div>
+
+<button
+  class="hbtn"
+  onclick="toggleTheme()"
+>
+  ☀️
+</button>
+
+  </div></header><div class="tabs"><button class="tab active">一覧</button>
+<button class="tab">ひな形</button>
+<button class="tab">横断比較</button>
+<button class="tab">今日</button>
+
+</div><div class="tabs">  <button class="tab active">
+    全て 1255
+  </button>  <button class="tab">
+    未理解 1254
+  </button>  <button class="tab">
+    不安 1
+  </button>  <button class="tab">
+    普通 0
+  </button>  <button class="tab">
+    自信あり 0
+  </button></div><div class="search-wrap"><input
 class="search"
-placeholder="検索..."
-id="searchInput"
+placeholder="検索語を入力"
 />
 
-  <div class="tabs">
-    <button class="tab active">全て 1255</button>
-    <button class="tab">未理解 1254</button>
-    <button class="tab">不安 1</button>
-  </div>  <div class="card">
-    <div class="subject">民法</div>
-    <div class="topic">留置権</div><div class="meta">
-  <div>理解度: 2</div>
-  <div>ミス: 3</div>
-  <div>最後: 2026/05/17</div>
+  <button class="search-btn">
+    検索
+  </button>  <button class="clear-btn">
+    クリア
+  </button></div><div class="list">  <div class="card"><div class="badges">
+  <div class="badge">民法</div>
+  <div class="badge orange">不安</div>
 </div>
 
-  </div>  <div class="card">
-    <div class="subject">不動産登記法</div>
-    <div class="topic">所有権移転登記</div><div class="meta">
-  <div>理解度: 1</div>
-  <div>ミス: 5</div>
-  <div>最後: 2026/05/16</div>
+<div class="topic">
+  連帯債務
 </div>
 
-  </div>  <div class="spacer"></div></div><div class="bottom-nav">
-  <button class="active">問題</button>
-  <button>ひな形</button>
-  <button>比較</button>
-</div><script>
+<div class="memo">
+  【ソース】2021年TAC予想問題集<br><br>
+
+  他の連帯債務者が相殺をもって
+  免責を得た連帯債務者に対抗した場合、
+  債権者に相殺によって消滅すべきだった
+  債務の履行を請求することができる。
+</div>
+
+<div class="meta">
+  最後に見た日: 2026/05/18 00:19<br>
+  復習: 2 ／ 間違え: 0
+</div>
+
+  </div>  <div class="card"><div class="badges">
+  <div class="badge">民法</div>
+  <div class="badge red">未理解</div>
+</div>
+
+<div class="topic">
+  留置権
+</div>
+
+<div class="memo">
+  【ソース】2021年TAC予想問題集<br><br>
+
+  建物買取代金債権で
+  留置権可能。
+</div>
+
+<div class="meta">
+  最後に見た日: 2026/05/17 23:44<br>
+  復習: 1 ／ 間違え: 0
+</div>
+
+  </div></div><div class="spacer"></div><div class="bottom-nav">  <button class="active">
+    一覧
+  </button>  <button>
+    ひな形
+  </button>  <button>
+    比較
+  </button>  <button>
+    今日
+  </button></div><script>
 function toggleTheme(){
-  document.body.classList.toggle("white-theme");
+
+  document.body.classList.toggle(
+    "white-theme"
+  );
 
   const isWhite =
-    document.body.classList.contains("white-theme");
+    document.body.classList.contains(
+      "white-theme"
+    );
 
   localStorage.setItem(
     "theme",
@@ -210,11 +327,15 @@ function toggleTheme(){
 }
 
 window.addEventListener("load",()=>{
+
   const savedTheme =
     localStorage.getItem("theme");
 
   if(savedTheme==="white"){
-    document.body.classList.add("white-theme");
+
+    document.body.classList.add(
+      "white-theme"
+    );
   }
 });
 </script></body>
