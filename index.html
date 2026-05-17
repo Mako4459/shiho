@@ -1082,5 +1082,355 @@ window.addEventListener('load',()=>{
 });
 })();
 </script>
+
+<script>
+(function(){
+  const UNIFIED_KEY = "shihoUnifiedData";
+
+  function safeJsonParse(value, fallback){
+    try { return JSON.parse(value); } catch(e) { return fallback; }
+  }
+
+  function normalizeProblem(item, index){
+    if(!item || typeof item !== "object") return null;
+    const topic = item.topic || item.title || item.name || item.question || "";
+    const subject = item.subject || item.category || item.kamoku || "";
+    if(!topic && !subject) return null;
+
+    return {
+      id: item.id || ("p_" + Date.now() + "_" + index),
+      type: "problem",
+      subject: subject || "未分類",
+      topic: topic || "無題",
+      memo: item.memo || item.note || item.description || "",
+      knowledge: item.knowledge || item.relatedKnowledge || item.info || "",
+      level: Number(item.level || item.understanding || 1),
+      mistakes: Number(item.mistakes || item.miss || item.wrongCount || 0),
+      reviewCount: Number(item.reviewCount || 0),
+      lastReviewed: item.lastReviewed || item.updatedAt || item.date || "",
+      createdAt: item.createdAt || item.date || new Date().toISOString()
+    };
+  }
+
+  function normalizeTemplate(item, index){
+    if(!item || typeof item !== "object") return null;
+    const title = item.title || item.topic || item.name || "";
+    const body = item.body || item.template || item.content || item.text || "";
+    if(!title && !body) return null;
+
+    return {
+      id: item.id || ("t_" + Date.now() + "_" + index),
+      type: "template",
+      subject: item.subject || item.category || "ひな形",
+      title: title || "無題ひな形",
+      body: body,
+      memo: item.memo || item.note || "",
+      knowledge: item.knowledge || item.relatedKnowledge || "",
+      level: Number(item.level || item.understanding || 1),
+      mistakes: Number(item.mistakes || 0),
+      reviewCount: Number(item.reviewCount || 0),
+      lastReviewed: item.lastReviewed || item.updatedAt || item.date || "",
+      createdAt: item.createdAt || item.date || new Date().toISOString()
+    };
+  }
+
+  function collectExistingData(){
+    const keys = Object.keys(localStorage);
+    let problems = [];
+    let templates = [];
+
+    keys.forEach(function(key){
+      const raw = localStorage.getItem(key);
+      const parsed = safeJsonParse(raw, null);
+      if(!parsed) return;
+
+      if(Array.isArray(parsed)){
+        parsed.forEach(function(item, i){
+          const p = normalizeProblem(item, i);
+          if(p) problems.push(p);
+        });
+      } else if(typeof parsed === "object"){
+        const possibleProblemArrays = [
+          parsed.problems, parsed.list, parsed.items, parsed.entries, parsed.shihoshoshi
+        ].filter(Array.isArray);
+
+        possibleProblemArrays.forEach(function(arr){
+          arr.forEach(function(item, i){
+            const p = normalizeProblem(item, i);
+            if(p) problems.push(p);
+          });
+        });
+
+        const possibleTemplateArrays = [
+          parsed.templates, parsed.hinagata, parsed.forms
+        ].filter(Array.isArray);
+
+        possibleTemplateArrays.forEach(function(arr){
+          arr.forEach(function(item, i){
+            const t = normalizeTemplate(item, i);
+            if(t) templates.push(t);
+          });
+        });
+      }
+    });
+
+    // 重複削除
+    const seenP = new Set();
+    problems = problems.filter(function(p){
+      const key = p.subject + "::" + p.topic + "::" + p.memo;
+      if(seenP.has(key)) return false;
+      seenP.add(key);
+      return true;
+    });
+
+    const seenT = new Set();
+    templates = templates.filter(function(t){
+      const key = t.subject + "::" + t.title + "::" + t.body.slice(0, 50);
+      if(seenT.has(key)) return false;
+      seenT.add(key);
+      return true;
+    });
+
+    return { problems, templates, migratedAt: new Date().toISOString() };
+  }
+
+  function getUnifiedData(){
+    const existing = safeJsonParse(localStorage.getItem(UNIFIED_KEY), null);
+    if(existing && (Array.isArray(existing.problems) || Array.isArray(existing.templates))){
+      return existing;
+    }
+    const collected = collectExistingData();
+    localStorage.setItem(UNIFIED_KEY, JSON.stringify(collected));
+    return collected;
+  }
+
+  function saveUnifiedData(data){
+    localStorage.setItem(UNIFIED_KEY, JSON.stringify(data));
+  }
+
+  function scoreItem(item){
+    const level = Number(item.level || 1);
+    const mistakes = Number(item.mistakes || 0);
+    const reviewCount = Number(item.reviewCount || 0);
+
+    let days = 999;
+    const last = item.lastReviewed || item.createdAt;
+    if(last){
+      const t = new Date(last).getTime();
+      if(!isNaN(t)) days = Math.floor((Date.now() - t) / 86400000);
+    }
+
+    return (5 - level) * 100 + mistakes * 20 + Math.min(days, 60) - reviewCount * 5;
+  }
+
+  function showTodayReview(){
+    const data = getUnifiedData();
+    const problems = Array.isArray(data.problems) ? data.problems : [];
+    if(!problems.length){
+      alert("問題データが見つかりません。いったん一覧で問題を追加・編集すると読み込まれます。");
+      return;
+    }
+
+    const selected = problems
+      .slice()
+      .sort((a,b) => scoreItem(b) - scoreItem(a))
+      .slice(0, 10);
+
+    let old = document.getElementById("today-review-panel");
+    if(old) old.remove();
+
+    const panel = document.createElement("div");
+    panel.id = "today-review-panel";
+    panel.style.cssText = `
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      background: #0f1923;
+      color: #e8dcc8;
+      overflow-y: auto;
+      padding: 16px;
+      font-family: sans-serif;
+    `;
+
+    const close = document.createElement("button");
+    close.textContent = "× 閉じる";
+    close.style.cssText = `
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid #2a4a7f;
+      background:#1e3a5f;
+      color:#e8dcc8;
+      font-weight:700;
+      margin-bottom:14px;
+    `;
+    close.onclick = function(){ panel.remove(); };
+    panel.appendChild(close);
+
+    const h = document.createElement("h2");
+    h.textContent = "今日やるべき問題";
+    h.style.cssText = "font-size:20px;margin:0 0 12px;color:#fff;";
+    panel.appendChild(h);
+
+    selected.forEach(function(item, idx){
+      const card = document.createElement("div");
+      card.style.cssText = `
+        background: rgba(30,58,95,.45);
+        border: 1px solid #2a4a7f;
+        border-left: 5px solid #e8b84b;
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 12px;
+      `;
+
+      const doneBtnId = "done_" + item.id;
+      card.innerHTML = `
+        <div style="font-size:12px;color:#7aa3d4;margin-bottom:4px;">${idx+1}. ${item.subject || "未分類"}</div>
+        <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.5;">${item.topic || item.title || "無題"}</div>
+        ${item.memo ? `<div style="font-size:13px;color:#b9c7d8;margin-top:8px;line-height:1.6;">${item.memo}</div>` : ""}
+        ${item.knowledge ? `<div style="font-size:13px;color:#e8dcc8;margin-top:8px;line-height:1.7;background:rgba(0,0,0,.18);padding:10px;border-radius:10px;">${item.knowledge}</div>` : ""}
+        <div style="font-size:12px;color:#7aa3d4;margin-top:8px;">理解度: ${item.level || 1} ／ 間違え: ${item.mistakes || 0} ／ 復習: ${item.reviewCount || 0}</div>
+        <button id="${doneBtnId}" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:none;background:#e8b84b;color:#111;font-weight:700;">今日復習した</button>
+      `;
+      panel.appendChild(card);
+
+      setTimeout(function(){
+        const btn = document.getElementById(doneBtnId);
+        if(btn){
+          btn.onclick = function(){
+            const latest = getUnifiedData();
+            latest.problems = (latest.problems || []).map(function(p){
+              if(p.id === item.id){
+                return Object.assign({}, p, {
+                  reviewCount: Number(p.reviewCount || 0) + 1,
+                  lastReviewed: new Date().toISOString()
+                });
+              }
+              return p;
+            });
+            saveUnifiedData(latest);
+            btn.textContent = "復習済み";
+            btn.disabled = true;
+            btn.style.opacity = ".65";
+          };
+        }
+      }, 0);
+    });
+
+    document.body.appendChild(panel);
+  }
+
+  function addTodayButton(){
+    if(document.getElementById("today-review-main-btn")) return;
+
+    const plusBtn = Array.from(document.querySelectorAll("button")).find(function(b){
+      const t = (b.textContent || "").trim();
+      return t === "＋" || t === "+" || t.includes("追加");
+    });
+
+    if(!plusBtn || !plusBtn.parentNode) return;
+
+    const btn = document.createElement("button");
+    btn.id = "today-review-main-btn";
+    btn.type = "button";
+    btn.textContent = "📌";
+    btn.title = "今日やるべき問題";
+    btn.style.cssText = `
+      margin-left:8px;
+      padding:10px 12px;
+      border:none;
+      border-radius:12px;
+      background:#e8b84b;
+      color:#111;
+      font-weight:700;
+      font-size:16px;
+    `;
+    btn.onclick = showTodayReview;
+
+    plusBtn.parentNode.insertBefore(btn, plusBtn.nextSibling);
+  }
+
+  window.shihoGetUnifiedData = getUnifiedData;
+  window.shihoShowTodayReview = showTodayReview;
+
+  window.addEventListener("load", function(){
+    setTimeout(function(){
+      getUnifiedData();
+      addTodayButton();
+    }, 1000);
+    setInterval(addTodayButton, 1500);
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+
+function formatDateJP(value){
+  if(!value) return "未記録";
+  const d = new Date(value);
+  if(isNaN(d.getTime())) return "未記録";
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  const h = String(d.getHours()).padStart(2,"0");
+  const min = String(d.getMinutes()).padStart(2,"0");
+  return `${y}/${m}/${day} ${h}:${min}`;
+}
+
+function addLastViewedLabels(){
+  document.querySelectorAll("[data-last-view-added!='1']").forEach(function(el){
+    const txt = el.textContent || "";
+    if(txt.includes("理解度:")){
+      el.dataset.lastViewAdded = "1";
+
+      let parent = el.parentElement;
+      if(!parent) return;
+
+      const existing = parent.querySelector(".last-view-info");
+      if(existing) return;
+
+      const info = document.createElement("div");
+      info.className = "last-view-info";
+      info.style.cssText = "font-size:12px;color:#9fb6d1;margin-top:6px;";
+
+      const last = localStorage.getItem("shiho_last_viewed");
+      info.textContent = "最後に見た日: " + formatDateJP(last);
+
+      parent.appendChild(info);
+    }
+  });
+}
+
+function recordView(){
+  localStorage.setItem("shiho_last_viewed", new Date().toISOString());
+}
+
+document.addEventListener("click", function(e){
+  const target = e.target;
+  if(!target) return;
+
+  const txt = (target.textContent || "").trim();
+
+  if(
+    txt.includes("回答") ||
+    txt.includes("詳細") ||
+    txt.includes("表示") ||
+    txt.includes("問題") ||
+    txt.includes("復習")
+  ){
+    recordView();
+    setTimeout(addLastViewedLabels, 300);
+  }
+}, true);
+
+window.addEventListener("load", function(){
+  setInterval(addLastViewedLabels, 1500);
+});
+
+})();
+</script>
+
 </body>
 </html>
