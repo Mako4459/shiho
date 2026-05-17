@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>司法書士 苦手ノート</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1923">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+body{
+background:#0f1923;
+color:white;
+font-family:sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+text-align:center;
+padding:20px;
+}
+.card{
+background:#1b2b40;
+padding:24px;
+border-radius:18px;
+max-width:420px;
+}
+button{
+padding:14px 20px;
+border:none;
+border-radius:12px;
+background:#3b82f6;
+color:white;
+font-size:16px;
+margin-top:18px;
+}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>司法書士 苦手ノート</h1>
+<p>このファイル群をGitHub Pagesに置くと、Chromeの「ホーム画面に追加」が利用できます。</p>
+<button onclick="alert('Chrome右上︙ → ホーム画面に追加')">
+ホーム画面に追加
+</button>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+ navigator.serviceWorker.register('./sw.js');
+}
+</script>
+</body>
+</html>
