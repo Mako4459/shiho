@@ -1203,5 +1203,137 @@ load();render();
 })();
 </script>
 
+
+<script>
+(function(){
+  const VIEW_KEY = "shihoProblemLastViewedMap";
+
+  function loadMap(){
+    try { return JSON.parse(localStorage.getItem(VIEW_KEY) || "{}"); }
+    catch(e){ return {}; }
+  }
+
+  function saveMap(map){
+    localStorage.setItem(VIEW_KEY, JSON.stringify(map));
+  }
+
+  function fmt(value){
+    if(!value) return "未記録";
+    const d = new Date(value);
+    if(isNaN(d.getTime())) return "未記録";
+    return d.getFullYear() + "/" +
+      String(d.getMonth()+1).padStart(2,"0") + "/" +
+      String(d.getDate()).padStart(2,"0") + " " +
+      String(d.getHours()).padStart(2,"0") + ":" +
+      String(d.getMinutes()).padStart(2,"0");
+  }
+
+  function getCardKey(card){
+    // 一覧カード内の大きめタイトルらしき文字をキーにする
+    const text = (card.innerText || "").trim();
+    if(!text) return null;
+
+    const lines = text.split("\n").map(s => s.trim()).filter(Boolean);
+
+    // 科目・理解度・日付・ボタン文言などを除外してテーマ名候補を取る
+    const ignore = [
+      "民法","不動産登記法","商法・会社法","商業登記法","民事訴訟法","民事保全法",
+      "民事執行法","供託法","司法書士法","憲法","刑法","不動産登記規則",
+      "理解できていない","少し不安","まあまあ","自信あり",
+      "未理解","不安","普通","自信あり",
+      "関連知識","理解度を変更","削除する","内容を編集","今日復習した",
+      "最後に見た日"
+    ];
+
+    const candidate = lines.find(line => {
+      if(ignore.some(x => line.includes(x))) return false;
+      if(/^\d{4}\/\d{1,2}\/\d{1,2}/.test(line)) return false;
+      if(line.length <= 1) return false;
+      return true;
+    });
+
+    return candidate || lines[0] || null;
+  }
+
+  function looksLikeProblemCard(el){
+    if(!el || !(el instanceof HTMLElement)) return false;
+    const txt = el.innerText || "";
+    if(txt.includes("最後に見た日")) return false;
+    if(txt.length < 2) return false;
+
+    // 一覧カードっぽいもの：科目か理解度が含まれる
+    const hasSubject = /(民法|不動産登記法|商法・会社法|商業登記法|民事訴訟法|民事保全法|民事執行法|供託法|司法書士法|憲法|刑法)/.test(txt);
+    const hasLevel = /(未理解|不安|普通|自信あり|理解できていない|少し不安|まあまあ)/.test(txt);
+
+    // 詳細画面の大きいカードは除外しきれないが、一覧側表示を優先
+    return hasSubject && hasLevel;
+  }
+
+  function findCards(){
+    const all = Array.from(document.querySelectorAll("div"));
+    return all.filter(el => {
+      if(!looksLikeProblemCard(el)) return false;
+
+      const rect = el.getBoundingClientRect();
+      if(rect.width < 160 || rect.height < 60) return false;
+
+      // 子に似たカードがある親は除外
+      const childCard = Array.from(el.children).some(ch => looksLikeProblemCard(ch));
+      if(childCard) return false;
+
+      return true;
+    });
+  }
+
+  function renderLastViewed(){
+    const map = loadMap();
+    const cards = findCards();
+
+    cards.forEach(card => {
+      if(card.dataset.lastViewedEnhanced === "1") return;
+
+      const key = getCardKey(card);
+      if(!key) return;
+
+      card.dataset.problemKey = key;
+      card.dataset.lastViewedEnhanced = "1";
+
+      const info = document.createElement("div");
+      info.className = "list-last-viewed-info";
+      info.style.cssText = "font-size:12px;color:#9fb6d1;margin-top:6px;line-height:1.4;";
+      info.textContent = "最後に見た日: " + fmt(map[key]);
+
+      card.appendChild(info);
+
+      card.addEventListener("click", function(){
+        const latest = loadMap();
+        latest[key] = new Date().toISOString();
+        saveMap(latest);
+
+        setTimeout(function(){
+          document.querySelectorAll(".list-last-viewed-info").forEach(el => {
+            const c = el.parentElement;
+            const k = c && c.dataset.problemKey;
+            if(k){
+              const m = loadMap();
+              el.textContent = "最後に見た日: " + fmt(m[k]);
+            }
+          });
+        }, 300);
+      }, true);
+    });
+  }
+
+  window.addEventListener("load", function(){
+    setTimeout(renderLastViewed, 1000);
+    setInterval(renderLastViewed, 1500);
+  });
+
+  document.addEventListener("click", function(){
+    setTimeout(renderLastViewed, 500);
+  }, true);
+})();
+</script>
+
 </body>
 </html>
