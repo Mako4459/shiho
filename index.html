@@ -929,5 +929,88 @@ load();render();
 })();
 </script>
 
+
+<script>
+(function(){
+  // 日本語IME変換中に検索処理が走って漢字変換を邪魔する問題を軽減する補助スクリプト。
+  // React側の検索UIがある場合、検索欄の右に「検索」ボタンを追加し、
+  // 入力途中ではなく、ボタン押下またはEnter確定で検索を反映しやすくする。
+  function isSearchInput(el){
+    if(!el || el.tagName !== "INPUT") return false;
+    const ph = (el.getAttribute("placeholder") || "").toLowerCase();
+    const aria = (el.getAttribute("aria-label") || "").toLowerCase();
+    return ph.includes("検索") || aria.includes("検索") || ph.includes("search") || aria.includes("search");
+  }
+
+  function enhanceSearchInputs(){
+    document.querySelectorAll("input").forEach(function(input){
+      if(!isSearchInput(input) || input.dataset.searchEnhanced === "1") return;
+      input.dataset.searchEnhanced = "1";
+
+      let composing = false;
+      let committedValue = input.value || "";
+
+      input.addEventListener("compositionstart", function(){ composing = true; }, true);
+      input.addEventListener("compositionend", function(){
+        composing = false;
+      }, true);
+
+      // Enterで検索確定
+      input.addEventListener("keydown", function(e){
+        if(e.key === "Enter" && !composing){
+          committedValue = input.value;
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.blur();
+        }
+      }, true);
+
+      const parent = input.parentElement;
+      if(!parent) return;
+
+      // すでに検索ボタンがある場合は追加しない
+      if(parent.querySelector("[data-added-search-button='1']")) return;
+
+      const btn = document.createElement("button");
+      btn.textContent = "検索";
+      btn.type = "button";
+      btn.dataset.addedSearchButton = "1";
+      btn.style.cssText = [
+        "margin-left:8px",
+        "padding:10px 14px",
+        "border-radius:10px",
+        "border:1px solid #2a4a7f",
+        "background:#1e3a5f",
+        "color:#e8dcc8",
+        "font-weight:700",
+        "font-size:14px",
+        "white-space:nowrap"
+      ].join(";");
+
+      btn.addEventListener("click", function(){
+        committedValue = input.value;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.blur();
+      });
+
+      // クリアボタンの左に置くことを狙う。なければinput直後。
+      const clearBtn = Array.from(parent.querySelectorAll("button")).find(function(b){
+        return (b.textContent || "").includes("クリア");
+      });
+      if(clearBtn){
+        parent.insertBefore(btn, clearBtn);
+      } else {
+        if(input.nextSibling) parent.insertBefore(btn, input.nextSibling);
+        else parent.appendChild(btn);
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", enhanceSearchInputs);
+  setInterval(enhanceSearchInputs, 1000);
+})();
+</script>
+
 </body>
 </html>
