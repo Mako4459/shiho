@@ -1,0 +1,8 @@
+{
+  "name":"司法書士 苦手ノート",
+  "short_name":"苦手ノート",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#0f1923",
+  "theme_color":"#0f1923"
+}
